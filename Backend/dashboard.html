@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexgen System Center</title>
+    <!-- Dependencies -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="config.js"></script>
+
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <!-- Mobile Sticky Header -->
+    <div
+        class="md:hidden fixed top-0 left-0 w-full bg-[#020617]/90 backdrop-blur-xl border-b border-white/5 z-40 flex justify-between items-center p-2 px-4 shadow-2xl">
+        <div class="flex items-center gap-3">
+            <img id="mobileUserImg" src="../img/logo-1.jpg"
+                onerror="this.src='https://ui-avatars.com/api/?name=NEXGEN&background=f59e0b&color=fff'"
+                class="w-12 h-12 rounded-full object-cover object-top border-2 border-amber-500 shadow-lg shadow-amber-500/20">
+            <div class="flex flex-col">
+                <span class="text-white text-lg font-black uppercase tracking-tighter">NEXGEN</span>
+                <span class="text-[8px] text-amber-500 font-bold tracking-[2px] uppercase">System Center</span>
+            </div>
+        </div>
+        <button onclick="toggleSidebar()"
+            class="text-white text-xl w-10 h-10 flex items-center justify-center rounded-lg bg-[#0f172a] border border-slate-800">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar flex flex-col">
+        <div class="pt-6 pb-2 text-center">
+            <img src="../img/logo-1.jpg"
+                onerror="this.src='https://ui-avatars.com/api/?name=N&background=f59e0b&color=fff'"
+                class="w-16 h-16 mx-auto rounded-full border-2 border-amber-500 mb-3 shadow-lg object-cover">
+            <h2 class="text-2xl font-black text-white uppercase tracking-tighter">NEXGEN</h2>
+            <p class="text-[10px] text-amber-500 font-bold tracking-[3px]">SYSTEM CENTER</p>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto mt-4 pb-6">
+            <div class="menu-header">Overview</div>
+            <div class="menu-item active" onclick="switchTab('dashboard', this)">
+                <i class="fas fa-home"></i> แดชบอร์ด
+            </div>
+
+            <div class="menu-header">Reporting</div>
+            <div class="menu-item" onclick="switchTab('edit-report', this)">
+                <i class="fas fa-edit"></i> แก้ไขรายงาน
+            </div>
+            <div class="menu-item" onclick="switchTab('travel-report', this)">
+                <i class="fas fa-car"></i> รายงานการเดินทาง
+            </div>
+            <div class="menu-item" onclick="switchTab('check-in', this)">
+                <i class="fas fa-users"></i> รายงานการเข้า/ออก
+            </div>
+
+            <div class="menu-item has-submenu" id="workReportMenu" onclick="toggleSubMenu('workSubmenu', this)">
+                <i class="fas fa-clipboard-check"></i> รายงานการทำงาน
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div id="workSubmenu" class="submenu">
+                <div class="submenu-item" onclick="switchTab('report-site', this)">
+                    <i class="fas fa-search-location"></i> รายงานเข้าตรวจหน่วยงาน
+                </div>
+                <div class="submenu-item" onclick="window.open('OP05.html', '_blank')">
+                    <i class="fas fa-handshake"></i> รายงานพบผู้ว่าจ้าง (OP05)
+                </div>
+                <div class="submenu-item" onclick="switchTab('report-rollcall', this)">
+                    <i class="fas fa-align-left"></i> รายงานการรวมแถว
+                </div>
+                <div class="submenu-item" onclick="switchTab('report-training', this)">
+                    <i class="fas fa-chalkboard-teacher"></i> รายงานอบรมประจำเดือน
+                </div>
+                <div class="submenu-item" onclick="window.open('../guard_report.html', '_blank')">
+                    <i class="fas fa-user-shield"></i> รายงานเข้า/ออก รปภ.
+                </div>
+            </div>
+
+            <div class="menu-header">Administration</div>
+            <div class="menu-item" onclick="switchTab('staff', this)">
+                <i class="fas fa-user-cog"></i> จัดการพนักงาน
+            </div>
+            <div class="menu-item" onclick="switchTab('units', this)">
+                <i class="fas fa-building"></i> จัดการหน่วยงาน
+            </div>
+            <div class="menu-item" onclick="switchTab('leaves', this)">
+                <i class="fas fa-calendar-check"></i> อนุมัติการลา
+            </div>
+            <div class="menu-item" onclick="switchTab('finance', this)">
+                <i class="fas fa-credit-card"></i> การเงิน
+            </div>
+        </nav>
+
+        <div class="p-8">
+            <button onclick="logout()"
+                class="w-full py-2 border border-slate-800 rounded-lg text-xs text-slate-500 hover:text-red-400 font-bold tracking-widest">LOGOUT</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- --- Dashboard Section --- -->
+        <section id="tab-dashboard" class="view active">
+            <header class="mb-6 flex-none flex justify-between items-center">
+                <div>
+                    <p class="text-amber-500 font-bold text-[10px] tracking-widest uppercase mb-1">System Status</p>
+                    <h1 class="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter">Dashboard</h1>
+                </div>
+                <!-- Premium User Profile Pill -->
+                <div class="hidden sm:flex items-center gap-4 bg-gradient-to-r from-[#0f172a] to-[#1e293b] p-1.5 pr-6 rounded-full border border-amber-500/20 shadow-2xl hover:border-amber-500/50 transition-all duration-300 group">
+                    <div class="relative">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+                        <img id="userImg" src="https://ui-avatars.com/api/?name=User&background=f59e0b&color=fff" 
+                             class="relative w-16 h-16 rounded-full border-2 border-amber-500 object-cover object-top shadow-inner">
+                        <div class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-[#0f172a] rounded-full shadow-md animate-pulse"></div>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p id="userName" class="text-white text-base font-black leading-tight tracking-tight">---</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                            <p id="userLevel" class="text-amber-500/90 text-[11px] font-black uppercase tracking-[1px]">---</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 flex-none">
+                <div class="data-card border-l-4 border-amber-500">
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">หน่วยงานเปิดอยู่</p>
+                    <div class="flex items-end gap-2 mt-2">
+                        <h3 id="unitCount" class="text-5xl font-black text-white">--</h3>
+                        <span class="text-slate-500 text-xs mb-2">แห่ง</span>
+                    </div>
+                </div>
+                <div class="data-card border-l-4 border-emerald-500">
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">พนักงานพร้อมปฏิบัติหน้าที่
+                    </p>
+                    <div class="flex items-end gap-2 mt-2">
+                        <h3 id="staffCount" class="text-5xl font-black text-emerald-400">--</h3>
+                        <span class="text-slate-500 text-xs mb-2">นาย</span>
+                    </div>
+                </div>
+                <div class="data-card border-l-4 border-cyan-500">
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">ปฏิบัติงานขณะนี้</p>
+                    <div class="flex items-end gap-2 mt-2">
+                        <h3 class="text-5xl font-black text-cyan-400">0</h3>
+                        <span class="text-slate-500 text-xs mb-2">นาย</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 flex-1 min-h-[300px]">
+                <div class="data-card border border-white/5 flex flex-col">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2 flex-none"><i
+                            class="fas fa-chart-line text-amber-500"></i> สถิติการปฏิบัติงาน (สัปดาห์)</h4>
+                    <div class="relative w-full flex-1 min-h-[200px]">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
+                <div class="data-card border border-white/5 flex flex-col">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2 flex-none"><i
+                            class="fas fa-chart-bar text-emerald-500"></i> แยกตามพื้นที่ (เฉพาะหน่วยที่เปิด)</h4>
+                    <div class="relative w-full flex-1 min-h-[200px]">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 flex-none">
+                <div class="data-card">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i
+                            class="fas fa-bullhorn text-amber-500"></i> สถานะการเชื่อมต่อ</h4>
+                    <div class="flex justify-between p-3 bg-slate-900/50 rounded-xl border border-white/5 text-sm">
+                        <span class="text-slate-300">Database Connection</span>
+                        <span class="text-emerald-500 font-bold">ONLINE</span>
+                    </div>
+                </div>
+                <div class="data-card">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2"><i
+                            class="fas fa-history text-amber-500"></i> กิจกรรมล่าสุด</h4>
+                    <p class="text-slate-500 text-sm py-4 text-center">ไม่มีข้อมูลกิจกรรม</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-report-site" class="view">
+            <div class="h-full p-8 text-center w-full">
+                <h1 class="text-3xl font-black mb-4 uppercase">รายงานเข้าตรวจหน่วยงาน</h1>
+                <p class="text-slate-500">ระบบกำลังอยู่ระหว่างการพัฒนาฟอร์มข้อมูล...</p>
+            </div>
+        </section>
+        <section id="tab-report-rollcall" class="view">
+            <div class="h-full p-8 text-center w-full">
+                <h1 class="text-3xl font-black mb-4 uppercase">รายงานการรวมแถว</h1>
+                <p class="text-slate-500">ระบบกำลังอยู่ระหว่างการพัฒนาฟอร์มข้อมูล...</p>
+            </div>
+        </section>
+        <section id="tab-report-training" class="view">
+            <div class="h-full p-8 text-center w-full">
+                <h1 class="text-3xl font-black mb-4 uppercase">รายงานการอบรมประจำเดือน</h1>
+                <p class="text-slate-500">ระบบกำลังอยู่ระหว่างการพัฒนาฟอร์มข้อมูล...</p>
+            </div>
+        </section>
+        <section id="tab-report-guard" class="view">
+            <div class="h-full p-8 text-center w-full">
+                <h1 class="text-3xl font-black mb-4 uppercase">รายงานเข้าออกหน่วยงาน รปภ.</h1>
+                <p class="text-slate-500">ระบบกำลังอยู่ระหว่างการพัฒนาฟอร์มข้อมูล...</p>
+            </div>
+        </section>
+
+        <!-- --- Manage Staff Section --- -->
+        <section id="tab-staff" class="view">
+            <div class="h-full flex flex-col w-full pb-8 sm:pb-0">
+                <header class="flex justify-between items-center mb-6 flex-none">
+                    <div>
+                        <p class="text-amber-500 font-bold text-[10px] tracking-widest uppercase mb-1">Personnel Management</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter">จัดการ<span class="text-amber-500">พนักงาน</span></h1>
+                    </div>
+                </header>
+
+                <!-- Staff Form -->
+                <div
+                    class="mb-3 p-[1px] rounded-[14px] bg-gradient-to-br from-amber-500/30 to-emerald-500/20 w-full shadow-sm">
+                    <div
+                        class="data-card border-none bg-gradient-to-br from-[#0f172a] to-[#020617] rounded-[13px] relative h-full p-3">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                                    <i class="fas fa-user-plus text-[10px]"></i>
+                                </div>
+                                <h2 class="text-xs font-black text-white">แบบฟอร์มข้อมูลพนักงาน</h2>
+                            </div>
+                            <button onclick="addNewStaff()"
+                                class="px-4 py-1.5 rounded-md text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-black transition-all flex items-center gap-1.5 shadow-lg shadow-amber-500/20">
+                                <i class="fas fa-save"></i> <span id="btnText">บันทึกข้อมูล</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-3 lg:gap-2 items-end">
+                            <div class="space-y-1 col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">รหัสพนักงาน</label>
+                                <input type="text" id="empId"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] placeholder-slate-600 shadow-inner"
+                                    placeholder="EMP-XXXX">
+                            </div>
+                            <div class="space-y-1 lg:col-span-2">
+                                <label
+                                    class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">ชื่อ-นามสกุล</label>
+                                <input type="text" id="empName"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] placeholder-slate-600 shadow-inner"
+                                    placeholder="ระบุชื่อ-นามสกุล">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label
+                                    class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">หน่วยงานประจำ</label>
+                                <div class="relative">
+                                    <input type="text" id="empUnit" oninput="handleUnitInput(this.value)"
+                                        onfocus="handleUnitInput(this.value)" onclick="handleUnitInput(this.value)"
+                                        class="w-full px-2.5 py-1.5 rounded-md text-[11px] transition-all text-white outline-none"
+                                        placeholder="ค้นหาหน่วยงาน..." autocomplete="off">
+                                    <div id="unitSuggestions" class="suggestions-container hidden"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">ตำแหน่ง</label>
+                                <input type="text" id="empRole"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] placeholder-slate-600"
+                                    placeholder="ตำแหน่ง">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">สิทธิ</label>
+                                <select id="empLevel"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] cursor-pointer appearance-none">
+                                    <option value="Guard">Guard</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                    <option value="Manager">Manager</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label
+                                    class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">สถานะพนักงาน</label>
+                                <select id="empStatus"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] font-bold text-emerald-400 appearance-none">
+                                    <option value="เปิด">เปิด (ON)</option>
+                                    <option value="ปิด">ปิด (OFF)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">รูปโปรไฟล์ (URL)</label>
+                                <input type="text" id="empImage"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] placeholder-slate-600 shadow-inner"
+                                    placeholder="https://...">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">รหัสผ่าน</label>
+                                <input type="password" id="empPassword"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] placeholder-slate-600"
+                                    placeholder="****">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff Table -->
+                <div
+                    class="data-card p-0 overflow-hidden border border-white/5 rounded-[14px] flex-1 flex flex-col min-h-[250px]">
+                    <div class="overflow-auto w-full flex-1 bg-[#0f172a]/20">
+                        <table class="w-full text-left relative min-w-[800px]">
+                            <thead
+                                class="bg-[#0f172a] text-slate-400 text-[9px] font-bold uppercase border-b border-slate-800 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-3 py-2 w-[5%]">รูป</th>
+                                    <th class="px-3 py-2 w-[12%]">รหัสพนักงาน <input type="text" id="hFilterId"
+                                            onkeyup="applyFilter()" placeholder="ค้นรหัส..."
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded px-1.5 py-1 mt-1 font-normal">
+                                    </th>
+                                    <th class="px-3 py-2 w-[20%]">ชื่อพนักงาน <input type="text" id="hFilterName"
+                                            onkeyup="applyFilter()" placeholder="ค้นชื่อ..."
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded px-1.5 py-1 mt-1 font-normal">
+                                    </th>
+                                    <th class="px-3 py-2 w-[15%]">หน่วยงาน <select id="hFilterUnit"
+                                            onchange="applyFilter()"
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded py-1 mt-1 font-normal"></select>
+                                    </th>
+                                    <th class="px-3 py-2 w-[15%]">ตำแหน่ง <input type="text" id="hFilterRole"
+                                            onkeyup="applyFilter()" placeholder="ตำแหน่ง..."
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded px-1.5 py-1 mt-1 font-normal">
+                                    </th>
+                                    <th class="px-3 py-2 w-[10%]">สิทธิ <select id="hFilterLevel"
+                                            onchange="applyFilter()"
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded py-1 mt-1 font-normal">
+                                            <option value="">ทั้งหมด</option>
+                                            <option value="Guard">Guard</option>
+                                            <option value="Supervisor">Spv.</option>
+                                            <option value="Manager">Mgr.</option>
+                                            <option value="Admin">Admin</option>
+                                        </select></th>
+                                    <th class="px-3 py-2 w-[13%]">สถานะ <select id="hFilterStatus"
+                                            onchange="applyFilter()"
+                                            class="w-full bg-[#020617]/80 border-slate-700/50 rounded py-1 mt-1 font-normal">
+                                            <option value="">ทั้งหมด</option>
+                                            <option value="เปิด">เปิด</option>
+                                            <option value="ปิด">ปิด</option>
+                                        </select></th>
+                                    <th class="px-3 py-2 text-center w-[15%]">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffTable" class="divide-y divide-slate-800/50 text-[11px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex flex-col sm:flex-row items-center justify-between mt-3 px-2 gap-4 flex-none">
+                    <div class="text-[10px] text-slate-500 font-bold uppercase">แสดง <span id="pageStartItem"
+                            class="text-amber-500">0</span> ถึง <span id="pageEndItem" class="text-amber-500">0</span>
+                        จาก <span id="totalItems" class="text-white">0</span></div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="prevPage()"
+                            class="px-3 py-1.5 rounded bg-[#0f172a] border border-slate-800 text-slate-400 hover:text-amber-500 text-[10px] font-bold"><i
+                                class="fas fa-chevron-left"></i></button>
+                        <div id="pageNumbers" class="flex gap-1"></div>
+                        <button onclick="nextPage()"
+                            class="px-3 py-1.5 rounded bg-[#0f172a] border border-slate-800 text-slate-400 hover:text-amber-500 text-[10px] font-bold"><i
+                                class="fas fa-chevron-right"></i></button>
+                        <select id="jumpSelect" onchange="goToPage(this.value)"
+                            class="ml-3 px-2 py-1.5 rounded bg-[#0f172a] border border-slate-800 text-white text-[10px] font-bold"></select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- --- Manage Units Section --- -->
+        <section id="tab-units" class="view">
+            <div class="h-full flex flex-col w-full pb-8 sm:pb-0">
+                <header class="flex justify-between items-center mb-6 flex-none">
+                    <div>
+                        <p class="text-amber-500 font-bold text-[10px] tracking-widest uppercase mb-1">Site Configuration</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter">จัดการ<span class="text-amber-500">หน่วยงาน</span></h1>
+                    </div>
+                </header>
+
+                <!-- Unit Form -->
+                <div
+                    class="mb-3 p-[1px] rounded-[14px] bg-gradient-to-br from-amber-500/30 to-emerald-500/20 w-full shadow-sm">
+                    <div
+                        class="data-card border-none bg-gradient-to-br from-[#0f172a] to-[#020617] rounded-[13px] relative h-full p-3">
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-7 h-7 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+                                    <i class="fas fa-building text-[10px]"></i>
+                                </div>
+                                <h2 class="text-xs font-black text-white uppercase tracking-tight">
+                                    แบบฟอร์มข้อมูลหน่วยงาน</h2>
+                            </div>
+                            <button onclick="addNewUnit()"
+                                class="px-4 py-1.5 rounded-md text-[10px] font-bold bg-amber-500 hover:bg-amber-400 text-black shadow-lg shadow-amber-500/20 transition-all flex items-center gap-1.5">
+                                <i class="fas fa-save"></i> <span id="btnUnitText">บันทึกหน่วยงาน</span>
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-10 gap-3 lg:gap-2 items-end">
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">เลขที่</label>
+                                <input type="text" id="uNumber" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="001">
+                            </div>
+                            <div class="space-y-1 lg:col-span-2">
+                                <label
+                                    class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">ชื่อหน่วยงาน</label>
+                                <input type="text" id="uName" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="ชื่อหน่วยงาน">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">เขต</label>
+                                <input type="text" id="uZone" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="กทม.">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">รหัสหน่วย</label>
+                                <input type="text" id="uCode" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="CODE">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">ผู้ดูแล</label>
+                                <input type="text" id="uManager" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="ชื่อผู้ดูแล">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">Lat</label>
+                                <input type="text" id="uLat" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="13.xxxx">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">Lng</label>
+                                <input type="text" id="uLng" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    placeholder="100.xxxx">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">รัศมี(ม.)</label>
+                                <input type="number" id="uRadius" class="w-full px-2.5 py-1.5 rounded-md text-[11px]"
+                                    value="100">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-blue-400 uppercase ml-1">กำลังพล(นาย)</label>
+                                <input type="number" id="uRequired" class="w-full px-2.5 py-1.5 rounded-md text-[11px] border-blue-500/30"
+                                    placeholder="0">
+                            </div>
+                            <div class="space-y-1 lg:col-span-1">
+                                <label class="text-[9px] font-bold text-amber-500/80 uppercase ml-1">สถานะ</label>
+                                <select id="uStatus"
+                                    class="w-full px-2.5 py-1.5 rounded-md text-[11px] font-bold text-emerald-400 appearance-none">
+                                    <option value="เปิด">เปิด (ON)</option>
+                                    <option value="ปิด">ปิด (OFF)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit Table -->
+                <div
+                    class="data-card p-0 overflow-hidden border border-white/5 rounded-[14px] flex-1 flex flex-col min-h-[250px]">
+                    <div class="overflow-auto w-full flex-1 bg-[#0f172a]/20">
+                        <table class="w-full text-left relative min-w-[800px]">
+                            <thead
+                                class="bg-[#0f172a] text-slate-400 text-[9px] font-bold uppercase border-b border-slate-800 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-3 py-2 w-[8%]">เลขที่</th>
+                                    <th class="px-3 py-2 w-[18%]">ชื่อหน่วยงาน</th>
+                                    <th class="px-3 py-2 w-[10%]">เขต</th>
+                                    <th class="px-3 py-2 w-[10%]">รหัสหน่วย</th>
+                                    <th class="px-3 py-2 w-[10%]">ผู้ดูแล</th>
+                                    <th class="px-3 py-2 w-[12%]">พิกัด (Lat,Lng)</th>
+                                    <th class="px-3 py-2 w-[6%]">รัศมี</th>
+                                    <th class="px-3 py-2 w-[8%]">กำลังพล</th>
+                                    <th class="px-3 py-2 w-[8%]">สถานะ</th>
+                                    <th class="px-3 py-2 text-center w-[10%]">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unitsTable" class="divide-y divide-slate-800/50 text-[11px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- --- Leaves Section --- -->
+        <section id="tab-leaves" class="view">
+            <div class="w-full">
+                <header class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-amber-500 font-bold text-[10px] tracking-widest uppercase mb-1">Leave Requests</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter">การอนุมัติ<span class="text-amber-500">การลา</span></h1>
+                    </div>
+                    <div class="bg-[#0f172a] px-4 py-2 rounded-xl border border-slate-800 shadow-inner">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-2">Pending:</span>
+                        <span id="pendingCount" class="text-xl font-black text-amber-500">0</span>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-4">
+                        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fas fa-clock text-amber-500"></i> คำขอที่รอการพิจารณา
+                        </h2>
+                        <div id="pendingLeaves" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                    <div class="lg:col-span-1 space-y-4">
+                        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <i class="fas fa-history text-slate-500"></i> ประวัติล่าสุด
+                        </h2>
+                        <div class="data-card p-0 overflow-hidden border border-white/5">
+                            <div class="max-h-[500px] overflow-y-auto bg-[#0f172a]/20">
+                                <table class="w-full text-left text-[11px]">
+                                    <tbody id="historyLeaves" class="divide-y divide-slate-800/50"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- --- Finance Section --- -->
+        <section id="tab-finance" class="view">
+            <div class="w-full">
+                <header class="flex justify-between items-center mb-6">
+                    <div>
+                        <p class="text-amber-500 font-bold text-[10px] tracking-widest uppercase mb-1">Financial Records</p>
+                        <h1 class="text-3xl sm:text-4xl font-black text-white uppercase tracking-tighter">จัดการ<span class="text-amber-500">การเงิน</span></h1>
+                    </div>
+                    <button onclick="openFinanceModal()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black transition-all shadow-lg shadow-amber-500/20">
+                        <i class="fas fa-plus mr-2"></i> เพิ่มรายการ
+                    </button>
+                </header>
+
+                <div class="data-card p-0 overflow-hidden border border-white/5">
+                    <div class="overflow-x-auto bg-[#0f172a]/20">
+                        <table class="w-full text-left">
+                            <thead class="bg-[#0f172a] text-slate-400 text-[9px] font-bold uppercase border-b border-slate-800">
+                                <tr>
+                                    <th class="px-5 py-3">พนักงาน</th>
+                                    <th class="px-5 py-3">ประเภท</th>
+                                    <th class="px-5 py-3">จำนวนเงิน</th>
+                                    <th class="px-5 py-3">วันที่บันทึก</th>
+                                    <th class="px-5 py-3">รายละเอียด</th>
+                                    <th class="px-5 py-3 text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financeTableBody" class="divide-y divide-slate-800/50 text-[11px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
