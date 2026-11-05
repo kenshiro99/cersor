@@ -1,430 +1,1279 @@
 <!DOCTYPE html>
-<html lang="th">
-
+<html lang="th" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexgen ระบบพอร์ทัล | เข้าสู่ระบบ</title>
-
-    <!-- Dependencies -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Sarabun:wght@300;400;700&display=swap"
-        rel="stylesheet">
-
-    <style>
-        :root {
-            --cyber-blue: #0ea5e9;
-            --cyber-gold: #f59e0b;
-            --cyber-dark: #020617;
-            --glass: rgba(15, 23, 42, 0.8);
-        }
-
-        body {
-            font-family: 'Outfit', 'Sarabun', sans-serif;
-            background-color: var(--cyber-dark);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            color: white;
-            position: relative;
-        }
-
-        /* --- BACKGROUND ANIMATIONS --- */
-        .mesh-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 1) 0%, rgba(2, 6, 23, 1) 100%);
-        }
-
-        .mesh-bg::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            opacity: 0.05;
-            pointer-events: none;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            animation: move 20s infinite alternate;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: rgba(14, 165, 233, 0.1);
-            top: -100px;
-            left: -100px;
-        }
-
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: rgba(245, 158, 11, 0.05);
-            bottom: -50px;
-            right: -50px;
-            animation-delay: -5s;
-        }
-
-        @keyframes move {
-            from {
-                transform: translate(0, 0);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanHome - แพลตฟอร์มบริการทำความสะอาดบ้านและคอนโดระดับพรีเมียม</title>
+  
+  <!-- Google Fonts: Prompt & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              400: '#4ade80',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
+            cyanGlow: '#06b6d4',
+            indigoLuxe: '#6366f1',
+            darkSurface: '#070b14',
+            darkCard: '#0f172a',
+            darkBorder: '#1e293b'
+          },
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            display: ['Outfit', 'Prompt', 'sans-serif'],
+          },
+          animation: {
+            'float-slow': 'float 6s ease-in-out infinite',
+            'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+            'shimmer': 'shimmer 2.5s infinite linear',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-14px)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+              '50%': { opacity: '0.8', transform: 'scale(1.05)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
             }
-
-            to {
-                transform: translate(100px, 100px);
-            }
+          }
         }
+      }
+    }
+  </script>
 
-        /* --- LOGIN CARD DESIGN --- */
-        .login-card {
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            width: 90%;
-            max-width: 420px;
-            padding: 50px 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(14, 165, 233, 0.05);
-            position: relative;
-            overflow: hidden;
-            animation: cardEntrance 1s cubic-bezier(0.23, 1, 0.32, 1);
-        }
+  <style>
+    /* Custom Smooth Styles & Effects */
+    body {
+      background-color: #070b14;
+      color: #f8fafc;
+      font-family: 'Prompt', sans-serif;
+      overflow-x: hidden;
+    }
 
-        @keyframes cardEntrance {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(30px);
-            }
+    /* Ambient Glow Spots */
+    .glow-radial-emerald {
+      background: radial-gradient(circle 500px at 50% 10%, rgba(16, 185, 129, 0.15), transparent 70%);
+    }
+    .glow-radial-cyan {
+      background: radial-gradient(circle 450px at 80% 30%, rgba(6, 182, 212, 0.12), transparent 70%);
+    }
+    .glow-radial-indigo {
+      background: radial-gradient(circle 500px at 20% 60%, rgba(99, 102, 241, 0.12), transparent 70%);
+    }
 
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
+    /* Glassmorphism */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+      transform: translateY(-4px);
+      transition: all 0.3s ease;
+    }
 
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, var(--cyber-blue), var(--cyber-gold), transparent);
-            animation: flow 3s linear infinite;
-        }
+    /* Shimmer Button */
+    .btn-gradient-shimmer {
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #06b6d4 100%);
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-gradient-shimmer:hover {
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.6);
+      transform: scale(1.03);
+    }
 
-        @keyframes flow {
-            from {
-                transform: translateX(-100%);
-            }
-
-            to {
-                transform: translateX(100%);
-            }
-        }
-
-        /* --- LOGO & TYPOGRAPHY --- */
-        .brand-logo {
-            width: 90px;
-            height: 90px;
-            margin: 0 auto 30px;
-            padding: 4px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .brand-logo img {
-            width: 100%;
-            height: 100%;
-            border-radius: 24px;
-            object-fit: cover;
-        }
-
-        .cyber-title {
-            font-size: 28px;
-            font-weight: 800;
-            text-align: center;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-            background: linear-gradient(to bottom, #fff 40%, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .cyber-subtitle {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--cyber-blue);
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 40px;
-            opacity: 0.8;
-        }
-
-        /* --- INPUT FIELDS --- */
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 24px;
-        }
-
-        .input-wrapper label {
-            position: absolute;
-            left: 20px;
-            top: -10px;
-            background: #0f172a;
-            padding: 0 8px;
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--cyber-blue);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 10;
-            border-radius: 4px;
-        }
-
-        .cyber-input {
-            width: 100%;
-            padding: 18px 24px 18px 55px;
-            background: rgba(2, 6, 23, 0.4) !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.05) !important;
-            border-radius: 18px;
-            color: white !important;
-            font-size: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            outline: none;
-        }
-
-        .cyber-input:focus {
-            border-color: var(--cyber-blue) !important;
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
-            background: rgba(2, 6, 23, 0.6) !important;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 24px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #475569;
-            transition: 0.3s;
-        }
-
-        .cyber-input:focus+i {
-            color: var(--cyber-blue);
-            transform: translateY(-50%) scale(1.2);
-        }
-
-        .cyber-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-            border: none;
-            border-radius: 20px;
-            color: white;
-            font-weight: 800;
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);
-        }
-
-        .cyber-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.4);
-            filter: brightness(1.1);
-        }
-
-        .loader {
-            width: 22px;
-            height: 22px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s infinite linear;
-            display: none;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .footer-text {
-            margin-top: 35px;
-            text-align: center;
-            font-size: 11px;
-            color: #475569;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 40px 25px;
-            }
-
-            .cyber-title {
-                font-size: 24px;
-            }
-        }
-    </style>
+    /* Before & After Slider Container */
+    .ba-slider {
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .ba-resize {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+    }
+    .ba-handle {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      margin-left: -2px;
+      background: #10b981;
+      cursor: ew-resize;
+      box-shadow: 0 0 15px #10b981;
+    }
+    .ba-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+      color: #070b14;
+      font-size: 16px;
+    }
+  </style>
 </head>
 
-<body>
+<body class="antialiased selection:bg-brand-500 selection:text-black">
 
-    <div class="mesh-bg"></div>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
+  <!-- Ambient Light Effects -->
+  <div class="fixed inset-0 pointer-events-none glow-radial-emerald z-0"></div>
+  <div class="fixed inset-0 pointer-events-none glow-radial-cyan z-0"></div>
+  <div class="fixed inset-0 pointer-events-none glow-radial-indigo z-0"></div>
 
-    <div class="login-card">
-        <div class="brand-logo">
-            <img src="img/logo-1.jpg"
-                onerror="this.src='https://ui-avatars.com/api/?name=NEXGEN&background=0ea5e9&color=fff'" alt="NEXGEN">
+  <!-- ==================== NAVIGATION BAR ==================== -->
+  <nav class="sticky top-0 z-50 glass-card border-b border-slate-800/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-cyanGlow flex items-center justify-center shadow-lg shadow-brand-500/30 group-hover:rotate-6 transition-transform">
+          <i class="fa-solid fa-sparkles text-black text-xl"></i>
         </div>
-
-        <h1 class="cyber-title">NEXGEN SYSTEM</h1>
-        <p class="cyber-subtitle">Secure Gateway</p>
-
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="input-wrapper">
-                <label>รหัสพนักงาน</label>
-                <input type="text" id="username" class="cyber-input" placeholder="ระบุรหัสพนักงาน" required
-                    autocomplete="off">
-                <i class="fas fa-fingerprint"></i>
-            </div>
-
-            <div class="input-wrapper">
-                <label>รหัสผ่าน</label>
-                <input type="password" id="password" class="cyber-input" placeholder="••••••••" required>
-                <i class="fas fa-shield-alt"></i>
-            </div>
-
-            <button type="submit" class="cyber-btn">
-                <span id="btnText">เข้าสู่ระบบ</span>
-                <div id="btnLoader" class="loader"></div>
-                <i class="fas fa-bolt" id="btnIcon"></i>
-            </button>
-        </form>
-
-        <div id="errorMsg" class="mt-6 text-center text-rose-500 text-[11px] font-bold hidden animate-pulse">
-            <i class="fas fa-exclamation-triangle mr-2"></i> การเข้าถึงล้มเหลว: โปรดตรวจสอบข้อมูลอีกครั้ง
+        <div>
+          <span class="text-2xl font-black font-display tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-400 bg-clip-text text-transparent">CleanHome</span>
+          <span class="text-xs block text-slate-400 font-medium tracking-wider -mt-1">PREMIUM LIVING CARE</span>
         </div>
+      </a>
 
-        <div class="footer-text">
-            &copy; 2026 NEXGEN SECURITY OPERATIONS
-        </div>
+      <!-- Desktop Nav Links -->
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#services" class="hover:text-brand-400 transition-colors">บริการของเรา</a>
+        <a href="#calculator" class="hover:text-brand-400 transition-colors">คำนวณราคา</a>
+        <a href="#security" class="hover:text-brand-400 transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-check text-brand-400"></i> มาตรฐานความปลอดภัย
+        </a>
+        <a href="#apps" class="hover:text-brand-400 transition-colors">แอปพลิเคชัน</a>
+        <a href="#cleaner-career" class="text-cyanGlow hover:text-cyan-300 transition-colors">สมัครเป็นแม่บ้านพาร์ทเนอร์</a>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-3">
+        <a href="#calculator" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border border-brand-500/40 text-brand-400 hover:bg-brand-500/10 transition-all">
+          <i class="fa-solid fa-calculator"></i> ประเมินราคา
+        </a>
+        <button onclick="openBookingModal()" class="btn-gradient-shimmer px-6 py-2.5 rounded-xl text-sm font-bold text-slate-950 flex items-center gap-2">
+          <span>จองแม่บ้านทันที</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+
     </div>
+  </nav>
 
-    <script>
-        const SUPABASE_URL = 'https://mvcsbylbsffgbkocehzx.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12Y3NieWxic2ZmZ2Jrb2NlaHp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMjI2NzgsImV4cCI6MjA5MTg5ODY3OH0.pxuSq1TuaSetJZAabrSPqXy6RAXAwaI_VWZ9zf5TypI';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Top Live Status Pill -->
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full glass-card border border-brand-500/30 text-xs sm:text-sm font-medium">
+          <span class="flex h-2.5 w-2.5 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-500"></span>
+          </span>
+          <span class="text-slate-200">ระบบเรดาร์พร้อมทำงาน: แม่บ้านมืออาชีพ 148 คนพร้อมให้บริการทั่ว กทม.</span>
+          <span class="bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded-md text-[11px] font-bold">ถึงใน 45 นาที</span>
+        </div>
+      </div>
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const user_id = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
-            const btnText = document.getElementById('btnText');
-            const btnLoader = document.getElementById('btnLoader');
-            const btnIcon = document.getElementById('btnIcon');
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Left Column: High-Impact Typography & CTA -->
+        <div class="lg:col-span-7 text-center lg:text-left">
+          
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black font-display tracking-tight leading-[1.15] mb-6">
+            ยกระดับความสะอาด <br>
+            <span class="bg-gradient-to-r from-brand-400 via-cyanGlow to-indigoLuxe bg-clip-text text-transparent">
+              ปลอดภัยระดับพรีเมียม
+            </span> <br>
+            สำหรับคอนโด & บ้านของคุณ
+          </h1>
 
-            // UI Feedback
-            errorMsg.classList.add('hidden');
-            btnText.innerText = 'กำลังตรวจสอบ...';
-            btnLoader.style.display = 'block';
-            btnIcon.style.display = 'none';
+          <p class="text-base sm:text-lg text-slate-400 font-light max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+            หมดกังวลเรื่องความปลอดภัย! แม่บ้านทุกคนผ่านการตรวจประวัติอาชญากรรมจาก <strong class="text-white font-semibold">สนง.ตำรวจแห่งชาติ 100%</strong> พร้อมระบบพักเงิน <strong class="text-brand-400 font-semibold">Escrow Guarantee</strong> ตรวจรับงานเรียบร้อยจึงโอนเงิน และประกันทรัพย์สินคุ้มครองสูงสุด ฿50,000
+          </p>
 
-            try {
-                // 1. ตรวจสอบข้อมูลพนักงานจาก Supabase
-                const { data, error } = await supabaseClient
-                    .from('staff')
-                    .select('*')
-                    .eq('emp_id', user_id)
-                    .eq('password', pass)
-                    .single();
+          <!-- CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
+            <button onclick="openBookingModal()" class="w-full sm:w-auto btn-gradient-shimmer px-8 py-4 rounded-2xl text-base font-bold text-slate-950 flex items-center justify-center gap-3">
+              <i class="fa-solid fa-calendar-check text-lg"></i>
+              <span>จองทำความสะอาด เริ่มต้น ฿550</span>
+            </button>
+            <a href="#apps" class="w-full sm:w-auto glass-card hover:bg-slate-800/80 px-8 py-4 rounded-2xl text-base font-semibold text-slate-200 border border-slate-700/80 flex items-center justify-center gap-3 transition-all">
+              <i class="fa-solid fa-mobile-screen-button text-cyanGlow"></i>
+              <span>ทดลองใช้แอปจำลอง</span>
+            </a>
+          </div>
 
-                if (error || !data) throw new Error('Unauthorized');
+          <!-- Trust Badges Grid -->
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800/80 max-w-xl mx-auto lg:mx-0">
+            <div class="text-left">
+              <div class="text-2xl sm:text-3xl font-extrabold font-display text-white">100%</div>
+              <div class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved text-brand-400"></i> ตรวจประวัติ สตช.
+              </div>
+            </div>
+            <div class="text-left border-l border-slate-800 pl-4">
+              <div class="text-2xl sm:text-3xl font-extrabold font-display text-cyanGlow">4.95 ⭐</div>
+              <div class="text-xs text-slate-400 mt-1">จาก 3,400+ รีวิวจริง</div>
+            </div>
+            <div class="text-left border-l border-slate-800 pl-4">
+              <div class="text-2xl sm:text-3xl font-extrabold font-display text-brand-400">฿50,000</div>
+              <div class="text-xs text-slate-400 mt-1">วงเงินประกันคุ้มครอง</div>
+            </div>
+          </div>
 
-                // 2. ตรวจสอบสถานะการใช้งาน
-                if (data.status === 'ปิด') {
-                    alert('บัญชีนี้ถูกระงับการใช้งาน');
-                    resetUI();
-                    return;
-                }
+        </div>
 
-                // 3. ตรวจสอบ Level (ตามความต้องการของผู้ใช้)
-                if (!data.level) {
-                    alert('ไม่พบระดับการเข้าถึง โปรดติดต่อผู้ดูแลระบบ');
-                    resetUI();
-                    return;
-                }
+        <!-- Right Column: Interactive 3D Phone Mockup -->
+        <div class="lg:col-span-5 relative flex justify-center">
+          
+          <!-- Glowing Aura Behind Phone -->
+          <div class="absolute -inset-4 bg-gradient-to-r from-brand-500/30 via-cyanGlow/20 to-indigoLuxe/30 rounded-[50px] blur-3xl opacity-60 animate-pulse-glow"></div>
 
-                // บันทึก Session
-                localStorage.setItem('nexgen_user', JSON.stringify(data));
+          <!-- Floating Badges Around Phone -->
+          <div class="absolute -top-6 -left-6 z-20 glass-card px-4 py-3 rounded-2xl border border-brand-500/40 shadow-2xl animate-float-slow hidden sm:flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-shield-check"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">บัตรพนักงาน QR สแกน</div>
+              <div class="text-[11px] text-slate-400">ผ่านเข้าตึกคอนโด & รปภ. ได้ 100%</div>
+            </div>
+          </div>
 
-                // Success Animation
-                btnText.innerText = 'ยืนยันสำเร็จ';
-                setTimeout(() => {
-                    window.location.href = 'checkin.html';
-                }, 800);
+          <div class="absolute -bottom-6 -right-6 z-20 glass-card px-4 py-3 rounded-2xl border border-cyanGlow/40 shadow-2xl animate-float-slow hidden sm:flex items-center gap-3" style="animation-delay: -3s;">
+            <div class="w-10 h-10 rounded-xl bg-cyanGlow/20 text-cyanGlow flex items-center justify-center text-lg">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">Escrow Payment</div>
+              <div class="text-[11px] text-slate-400">เงินปลอดภัย ไม่พอใจไม่โอน</div>
+            </div>
+          </div>
 
-            } catch (err) {
-                console.error('Login error:', err);
-                errorMsg.classList.remove('hidden');
-                resetUI();
-            }
-        }
+          <!-- Smartphone Shell Container (Realistic 390x800) -->
+          <div class="relative w-[340px] sm:w-[380px] rounded-[48px] bg-slate-950 p-3.5 border-4 border-slate-700/80 shadow-2xl shadow-black">
+            
+            <!-- Dynamic Island Notch -->
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-30 flex items-center justify-between px-3">
+              <div class="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+              <div class="w-3 h-3 rounded-full bg-indigo-950 border border-slate-800"></div>
+            </div>
 
-        function resetUI() {
-            document.getElementById('btnText').innerText = 'เข้าสู่ระบบ';
-            document.getElementById('btnLoader').style.display = 'none';
-            document.getElementById('btnIcon').style.display = 'block';
-        }
+            <!-- Inside Phone Screen -->
+            <div class="rounded-[38px] overflow-hidden bg-slate-900 border border-slate-800 text-left relative flex flex-col h-[680px]">
+              
+              <!-- App Header -->
+              <div class="bg-gradient-to-b from-slate-800 to-slate-900 p-5 pt-8 border-b border-slate-800">
+                <div class="flex items-center justify-between mt-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
+                      <i class="fa-solid fa-sparkles text-sm"></i>
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-white">CleanHome Mobile</div>
+                      <div class="text-[10px] text-brand-400">สมาชิก: CUS-884102</div>
+                    </div>
+                  </div>
+                  <span class="text-[11px] font-bold bg-brand-500/20 text-brand-400 px-2.5 py-1 rounded-full border border-brand-500/30">
+                    🟢 ออนไลน์
+                  </span>
+                </div>
+              </div>
 
-        window.onload = () => {
-            // เคลียร์ session เก่าเพื่อบังคับให้ล็อกอินใหม่ทุกครั้งตามความต้องการ
-            localStorage.removeItem('nexgen_user');
-            console.log("System Ready. Please login.");
-        }
-    </script>
+              <!-- Interactive Mock Screen Content -->
+              <div class="p-4 space-y-3.5 overflow-y-auto flex-1 text-xs">
+                
+                <!-- Live Job Card -->
+                <div class="bg-slate-800/90 rounded-2xl p-4 border border-brand-500/40 shadow-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] uppercase font-bold text-brand-400 tracking-wider">กำลังเดินทาง (EN ROUTE)</span>
+                    <span class="text-[11px] text-slate-400">งาน #BK-8801</span>
+                  </div>
+                  <div class="font-bold text-white text-sm">Life Asoke-Rama 9 (ห้อง 19/402)</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5">ทำความสะอาดคอนโด Studio 35 ตร.ม.</div>
+
+                  <!-- Cleaner In Transit Card -->
+                  <div class="mt-3 pt-3 border-t border-slate-700/60 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-9 h-9 rounded-full bg-brand-500 text-slate-950 font-bold flex items-center justify-center text-sm">
+                        ส
+                      </div>
+                      <div>
+                        <div class="font-bold text-white text-xs">สมศรี มณีฉาย</div>
+                        <div class="text-[10px] text-brand-400">Gold Pro ⭐ 4.95 (รหัส CLN-680104)</div>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-brand-400 font-extrabold text-xs">850 เมตร</div>
+                      <div class="text-[10px] text-slate-400">อีก ~8 นาทีถึง</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Geofence Verified Badge -->
+                <div class="bg-slate-800/60 rounded-xl p-3 border border-slate-700/80 flex items-center gap-3">
+                  <i class="fa-solid fa-location-crosshairs text-brand-400 text-lg"></i>
+                  <div>
+                    <div class="text-white font-semibold">GPS Geofencing Active</div>
+                    <div class="text-[10px] text-slate-400">ระบบจะปลดล็อครหัสประตูห้องเมื่อแม่บ้านเข้าใกล้ในระยะ 150 ม.</div>
+                  </div>
+                </div>
+
+                <!-- Escrow Status Card -->
+                <div class="bg-emerald-950/40 rounded-xl p-3 border border-brand-500/30 flex items-center justify-between">
+                  <div>
+                    <div class="text-brand-300 font-bold text-[11px]">ยอดเงินในระบบ Escrow</div>
+                    <div class="text-[10px] text-slate-400">พักเงินปลอดภัย ตรวจรับงานก่อนโอน</div>
+                  </div>
+                  <div class="text-sm font-extrabold text-white">฿550.00</div>
+                </div>
+
+                <!-- Service List Preview -->
+                <div class="text-[11px] font-bold text-slate-400 pt-1">บริการยอดนิยมในตึกของคุณ</div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="bg-slate-800/70 p-2.5 rounded-xl border border-slate-700 text-center">
+                    <i class="fa-solid fa-building text-cyanGlow mb-1 text-base"></i>
+                    <div class="text-white font-semibold text-[11px]">คอนโด 1BR</div>
+                    <div class="text-brand-400 font-bold text-[11px]">฿550</div>
+                  </div>
+                  <div class="bg-slate-800/70 p-2.5 rounded-xl border border-slate-700 text-center">
+                    <i class="fa-solid fa-broom text-brand-400 mb-1 text-base"></i>
+                    <div class="text-white font-semibold text-[11px]">Deep Clean</div>
+                    <div class="text-brand-400 font-bold text-[11px]">฿2,200</div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Phone Bottom Nav Bar -->
+              <div class="bg-slate-950/90 border-t border-slate-800 py-2.5 px-6 flex justify-between text-slate-400 text-xs">
+                <div class="text-brand-400 flex flex-col items-center gap-1 font-bold">
+                  <i class="fa-solid fa-house"></i>
+                  <span class="text-[9px]">จองบริการ</span>
+                </div>
+                <div class="flex flex-col items-center gap-1 hover:text-white transition">
+                  <i class="fa-solid fa-radar"></i>
+                  <span class="text-[9px]">ติดตามงาน</span>
+                </div>
+                <div class="flex flex-col items-center gap-1 hover:text-white transition">
+                  <i class="fa-solid fa-receipt"></i>
+                  <span class="text-[9px]">ประวัติ</span>
+                </div>
+                <div class="flex flex-col items-center gap-1 hover:text-white transition">
+                  <i class="fa-solid fa-user"></i>
+                  <span class="text-[9px]">โปรไฟล์</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== BEFORE & AFTER SLIDER SECTION ==================== -->
+  <section class="py-20 relative z-10 bg-slate-950/60 border-y border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+          PROVEN EXCELLENCE
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold font-display text-white mt-4 mb-4">
+          พิสูจน์ผลงานจริง: ลากเพื่อดูความแตกต่าง ก่อน - หลัง ทำความสะอาด
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          ลองเลื่อนแท่งเปรียบเทียบตรงกลาง เพื่อดูมาตรฐานงานระดับพรีเมียมจากทีมงาน CleanHome
+        </p>
+      </div>
+
+      <!-- Draggable Split Screen Slider Component -->
+      <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl shadow-brand-500/10 border-2 border-slate-700/80 ba-slider aspect-[16/9] relative" id="baContainer">
+        
+        <!-- After Image (Clean Room Background) -->
+        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop" 
+             alt="ห้องคอนโดหลังทำความสะอาดเสร็จ เงาวับ สะอาดเป็นระเบียบ" 
+             class="absolute inset-0 w-full h-full object-cover">
+        
+        <div class="absolute bottom-5 right-6 z-10 glass-card px-4 py-2 rounded-xl text-xs font-bold text-brand-400 border border-brand-500/40">
+          ✨ หลังทำความสะอาด (CleanHome Pro)
+        </div>
+
+        <!-- Before Image (Overlay clipped with width) -->
+        <div class="ba-resize" id="baResize">
+          <!-- We use an image with dimmed messy overlay effect -->
+          <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop" 
+               alt="ห้องก่อนทำความสะอาด มีฝุ่นและคราบฝังลึก" 
+               class="absolute inset-0 w-full h-full object-cover brightness-75 contrast-125">
+          
+          <div class="absolute bottom-5 left-6 z-10 glass-card px-4 py-2 rounded-xl text-xs font-bold text-amber-400 border border-amber-500/40">
+            ⚠️ สภาพก่อนทำความสะอาด
+          </div>
+        </div>
+
+        <!-- Draggable Handle Divider -->
+        <div class="ba-handle" id="baHandle">
+          <div class="ba-circle">
+            <i class="fa-solid fa-arrows-left-right"></i>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== INTERACTIVE PRICING CALCULATOR ==================== -->
+  <section id="calculator" class="py-24 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-cyanGlow bg-cyanGlow/10 px-3 py-1 rounded-full border border-cyanGlow/20">
+          INSTANT ESTIMATE
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold font-display text-white mt-4 mb-4">
+          เครื่องคำนวณราคาอัจฉริยะ (โปร่งใส ไม่มีบวกเพิ่ม)
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          เลือกขนาดห้องและบริการเสริม เพื่อคำนวณราคาสุทธิ พร้อมเห็นยอดเงินที่จะเข้าพักใน Escrow แบบเรียลไทม์
+        </p>
+      </div>
+
+      <!-- Calculator Box -->
+      <div class="max-w-4xl mx-auto glass-card rounded-3xl p-6 sm:p-10 border border-slate-700/80 shadow-2xl relative">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          
+          <!-- Left: Selection Options (7 Cols) -->
+          <div class="md:col-span-7 space-y-6">
+            
+            <!-- Step 1: Select Property Type -->
+            <div>
+              <label class="block text-sm font-bold text-white mb-3">1. เลือกประเภทที่อยู่อาศัย / บริการ</label>
+              <div class="grid grid-cols-2 gap-3" id="serviceOptions">
+                
+                <button type="button" onclick="selectService('studio', 550, 120, 'คอนโด Studio / 1BR (ไม่เกิน 35 ตร.ม.)')" class="service-btn active p-4 rounded-2xl glass-card border border-brand-500 text-left transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <i class="fa-solid fa-building text-brand-400 text-lg"></i>
+                    <span class="text-brand-400 font-extrabold text-sm">฿550</span>
+                  </div>
+                  <div class="font-bold text-white text-xs sm:text-sm">คอนโด Studio / 1BR</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">ระยะเวลา ~2 ชั่วโมง</div>
+                </button>
+
+                <button type="button" onclick="selectService('2br', 850, 180, 'คอนโด 2BR / Suite (36-65 ตร.ม.)')" class="service-btn p-4 rounded-2xl glass-card border border-slate-700 hover:border-slate-500 text-left transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <i class="fa-solid fa-city text-cyanGlow text-lg"></i>
+                    <span class="text-cyanGlow font-extrabold text-sm">฿850</span>
+                  </div>
+                  <div class="font-bold text-white text-xs sm:text-sm">คอนโด 2BR / Suite</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">ระยะเวลา ~3 ชั่วโมง</div>
+                </button>
+
+                <button type="button" onclick="selectService('house', 1500, 240, 'บ้านเดี่ยว / ทาวน์โฮม (2 ชั้น)')" class="service-btn p-4 rounded-2xl glass-card border border-slate-700 hover:border-slate-500 text-left transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <i class="fa-solid fa-house-chimney text-amber-400 text-lg"></i>
+                    <span class="text-amber-400 font-extrabold text-sm">฿1,500</span>
+                  </div>
+                  <div class="font-bold text-white text-xs sm:text-sm">บ้านเดี่ยว / ทาวน์โฮม</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">ระยะเวลา ~4 ชั่วโมง</div>
+                </button>
+
+                <button type="button" onclick="selectService('deep', 2200, 300, 'Deep Cleaning จัดเต็มพิเศษ')" class="service-btn p-4 rounded-2xl glass-card border border-slate-700 hover:border-slate-500 text-left transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-indigoLuxe text-lg"></i>
+                    <span class="text-indigoLuxe font-extrabold text-sm">฿2,200</span>
+                  </div>
+                  <div class="font-bold text-white text-xs sm:text-sm">Deep Cleaning</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">ขัดคราบลึก + พ่นฆ่าเชื้อ</div>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Step 2: Add-on Checkboxes -->
+            <div>
+              <label class="block text-sm font-bold text-white mb-3">2. บริการเสริมพิเศษ (Add-ons)</label>
+              <div class="space-y-2.5">
+                
+                <label class="flex items-center justify-between p-3.5 rounded-xl glass-card border border-slate-700/60 cursor-pointer hover:border-brand-500/40 transition">
+                  <div class="flex items-center gap-3">
+                    <input type="checkbox" id="addonIron" onchange="calculateTotal()" class="w-4 h-4 rounded text-brand-500 focus:ring-0 accent-brand-500">
+                    <div>
+                      <div class="text-xs sm:text-sm font-bold text-white">รีดผ้าเรียบสวย (15-20 ตัว)</div>
+                      <div class="text-[11px] text-slate-400">แขวนแยกหมวดหมู่เป็นระเบียบ</div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-brand-400">+฿150</span>
+                </label>
+
+                <label class="flex items-center justify-between p-3.5 rounded-xl glass-card border border-slate-700/60 cursor-pointer hover:border-brand-500/40 transition">
+                  <div class="flex items-center gap-3">
+                    <input type="checkbox" id="addonOzone" onchange="calculateTotal()" class="w-4 h-4 rounded text-brand-500 focus:ring-0 accent-brand-500">
+                    <div>
+                      <div class="text-xs sm:text-sm font-bold text-white">อบโอโซน & พ่นฆ่าเชื้อไวรัสระดับนาโน</div>
+                      <div class="text-[11px] text-slate-400">กำจัดไรฝุ่น กลิ่นอับ ปลอดสารพิษตกค้าง</div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-brand-400">+฿300</span>
+                </label>
+
+                <label class="flex items-center justify-between p-3.5 rounded-xl glass-card border border-slate-700/60 cursor-pointer hover:border-brand-500/40 transition">
+                  <div class="flex items-center gap-3">
+                    <input type="checkbox" id="addonBalcony" onchange="calculateTotal()" class="w-4 h-4 rounded text-brand-500 focus:ring-0 accent-brand-500">
+                    <div>
+                      <div class="text-xs sm:text-sm font-bold text-white">ขัดล้างระเบียงคอนโด + เช็ดรางกระจก</div>
+                      <div class="text-[11px] text-slate-400">ขจัดคราบฝุ่นละออง PM 2.5 ภายนอก</div>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-brand-400">+฿200</span>
+                </label>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right: Summary Receipt Card (5 Cols) -->
+          <div class="md:col-span-5 bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            
+            <div>
+              <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <span class="text-xs uppercase font-bold text-slate-400 tracking-wider">ใบสรุปราคาประเมิน</span>
+                <span class="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded font-bold">Escrow Protected</span>
+              </div>
+
+              <div class="mt-4 space-y-3 text-xs">
+                <div class="flex justify-between text-slate-300">
+                  <span id="summaryTitle">คอนโด Studio / 1BR</span>
+                  <span id="summaryBasePrice" class="font-bold text-white">฿550</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>บริการเสริมที่เลือก:</span>
+                  <span id="summaryAddonPrice" class="font-bold text-brand-400">฿0</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>ประกันภัยคุ้มครองทรัพย์สิน:</span>
+                  <span class="text-brand-400 font-bold">ฟรี (฿50,000)</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>ระยะเวลาโดยประมาณ:</span>
+                  <span id="summaryDuration" class="font-bold text-white">~120 นาที</span>
+                </div>
+              </div>
+
+              <!-- Escrow Guarantee Notice -->
+              <div class="mt-6 p-3.5 rounded-xl bg-emerald-950/30 border border-brand-500/30 text-[11px] text-slate-300 flex items-start gap-2.5">
+                <i class="fa-solid fa-lock text-brand-400 text-sm mt-0.5"></i>
+                <div>
+                  <strong class="text-brand-300 font-bold">ระบบพักเงิน Escrow 100%</strong>
+                  <p class="text-slate-400 mt-0.5 leading-relaxed">ยอดเงินจะถูกพักไว้ในระบบอย่างปลอดภัย เงินจะโอนให้แม่บ้านหลังจากท่านตรวจรับงานแล้วเท่านั้น</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Price & CTA -->
+            <div class="pt-6 border-t border-slate-800 mt-6">
+              <div class="flex items-baseline justify-between mb-4">
+                <span class="text-sm font-bold text-white">ยอดสุทธิที่ต้องชำระ:</span>
+                <div class="text-right">
+                  <span id="grandTotal" class="text-3xl font-black font-display text-brand-400">฿550</span>
+                  <span class="text-[10px] text-slate-400 block">ไม่มีค่าใช้จ่ายแอบแฝง</span>
+                </div>
+              </div>
+
+              <button onclick="openBookingModal()" class="w-full btn-gradient-shimmer py-3.5 rounded-xl text-slate-950 font-bold text-sm flex items-center justify-center gap-2">
+                <span>ไปขั้นตอนจองงาน & ชำระเงิน</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 4 PILLARS OF SAFETY & SECURITY ==================== -->
+  <section id="security" class="py-24 relative z-10 bg-slate-950/80 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+          BANK-GRADE SECURITY
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold font-display text-white mt-4 mb-4">
+          มาตรฐานความปลอดภัย 4 ชั้น <br>
+          <span class="bg-gradient-to-r from-brand-400 to-cyanGlow bg-clip-text text-transparent">ที่คุณไว้ใจให้เข้าห้องได้ 100%</span>
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          เราออกแบบระบบโดยคำนึงถึงความปลอดภัยของชีวิตและทรัพย์สินของผู้อยู่อาศัยในคอนโดและบ้านเดี่ยวเป็นหัวใจสำคัญ
+        </p>
+      </div>
+
+      <!-- 4 Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Pillar 1: Police Background Check -->
+        <div class="glass-card glass-card-hover p-6 rounded-3xl border border-slate-800 relative group">
+          <div class="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-id-card-clip"></i>
+          </div>
+          <div class="text-xs font-bold uppercase tracking-wider text-brand-400 mb-1">PILLAR 01</div>
+          <h3 class="text-lg font-bold text-white mb-2.5">ตรวจประวัติ สตช. 100%</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            แม่บ้านทุกคนต้องผ่านการตรวจสอบประวัติอาชญากรรมจากกองทะเบียนประวัติอาชญากร สำนักงานตำรวจแห่งชาติ ไม่มีคดีติดตัว และยืนยันตัวตนด้วยบัตรประชาชนตัวจริง
+          </p>
+        </div>
+
+        <!-- Pillar 2: Virtual Staff Badge QR -->
+        <div class="glass-card glass-card-hover p-6 rounded-3xl border border-slate-800 relative group">
+          <div class="w-14 h-14 rounded-2xl bg-cyanGlow/10 text-cyanGlow flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <div class="text-xs font-bold uppercase tracking-wider text-cyanGlow mb-1">PILLAR 02</div>
+          <h3 class="text-lg font-bold text-white mb-2.5">บัตรพนักงานเสมือน (รปภ.)</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            มี Digital Staff ID Card พร้อม Dynamic QR Code ที่เปลี่ยนทุก 5 นาที และลายน้ำกันแคปหน้าจอ เพื่อให้นิติบุคคลและ รปภ. คอนโดสแกนตรวจสอบก่อนอนุญาตให้ขึ้นตึก
+          </p>
+        </div>
+
+        <!-- Pillar 3: AES-256 Door Code Encryption -->
+        <div class="glass-card glass-card-hover p-6 rounded-3xl border border-slate-800 relative group">
+          <div class="w-14 h-14 rounded-2xl bg-indigoLuxe/10 text-indigoLuxe flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div class="text-xs font-bold uppercase tracking-wider text-indigoLuxe mb-1">PILLAR 03</div>
+          <h3 class="text-lg font-bold text-white mb-2.5">เข้ารหัสรหัสประตู AES-256</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            รหัสเปิดห้องหรือกล่องกุญแจจะถูกเข้ารหัสแบบ Field-Level Encryption และจะถูกถอดรหัสให้แม่บ้านเห็นก็ต่อเมื่อระบบ GPS ยืนยันว่าแม่บ้านเช็คอินอยู่หน้าห้อง (<150ม.) เท่านั้น
+          </p>
+        </div>
+
+        <!-- Pillar 4: Double-Entry Escrow -->
+        <div class="glass-card glass-card-hover p-6 rounded-3xl border border-slate-800 relative group">
+          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-vault"></i>
+          </div>
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">PILLAR 04</div>
+          <h3 class="text-lg font-bold text-white mb-2.5">ระบบหน่วงเงิน Escrow</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            เงินค่าบริการของคุณจะถูกเก็บรักษาไว้ใน Escrow Account อย่างปลอดภัย ระบบจะไม่โอนเงินให้แม่บ้านจนกว่าคุณจะตรวจสอบความสะอาดและกดยืนยันตรวจรับงาน
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== DUAL APPLICATION PREVIEW ==================== -->
+  <section id="apps" class="py-24 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-indigoLuxe bg-indigoLuxe/10 px-3 py-1 rounded-full border border-indigoLuxe/20">
+          NATIVE MOBILE ECOSYSTEM
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold font-display text-white mt-4 mb-4">
+          ระบบแยกแอปพลิเคชันชัดเจน <br>
+          <span class="bg-gradient-to-r from-brand-400 via-cyanGlow to-indigoLuxe bg-clip-text text-transparent">เพื่อประสบการณ์ที่สมบูรณ์แบบ</span>
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          แอปสำหรับลูกค้าจองบริการ และแอป CleanHome Pro สำหรับแม่บ้านรับงาน ทำงานสอดประสานกันแบบเรียลไทม์
+        </p>
+      </div>
+
+      <!-- App Switcher Tabs -->
+      <div class="flex justify-center mb-12">
+        <div class="glass-card p-1.5 rounded-2xl border border-slate-800 flex gap-2">
+          <button id="btnTabCustomer" onclick="switchAppTab('customer')" class="px-6 py-2.5 rounded-xl font-bold text-sm bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20 transition-all flex items-center gap-2">
+            <i class="fa-solid fa-user"></i>
+            <span>แอปสำหรับลูกค้า (CleanHome)</span>
+          </button>
+          <button id="btnTabCleaner" onclick="switchAppTab('cleaner')" class="px-6 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition-all flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>แอปสำหรับแม่บ้าน (CleanHome Pro)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content: Customer App Details -->
+      <div id="tabContentCustomer" class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-6 space-y-6">
+          <div class="inline-flex items-center gap-2 text-brand-400 text-sm font-bold bg-brand-500/10 px-3 py-1 rounded-lg">
+            <i class="fa-solid fa-sparkles"></i> สำหรับลูกค้าผู้พักอาศัย
+          </div>
+          <h3 class="text-3xl font-extrabold text-white">จองง่าย จ่ายปลอดภัย ติดตามแม่บ้านได้แบบเรียลไทม์</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            ออกแบบมาเพื่อความสะดวกสบายสูงสุดของคนเมือง เพียงเลือกประเภทคอนโด วันเวลาที่สะดวก ระบบจะจัดส่งแม่บ้านที่คะแนนสูงสุดและอยู่ใกล้คุณที่สุด พร้อมให้คุณติดตามพิกัด GPS ได้ตลอดเวลา
+          </p>
+
+          <div class="space-y-3 pt-2">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>เห็นรูป ชื่อ และรหัสพนักงาน:</strong> ตรวจสอบประวัติแม่บ้านล่วงหน้าก่อนถึงห้อง
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>ปุ่มฉุกเฉิน SOS 24 ชม.:</strong> ประสานงานศูนย์ควบคุมและ รปภ. นิติบุคคลทันทีหากเกิดเหตุ
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>ระบบตรวจรับงานและทิป:</strong> ให้คะแนนดาว แนบรูปคำชม และโอนทิปให้แม่บ้านคนโปรดได้ง่ายๆ
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex gap-4">
+            <a href="http://localhost:8081" target="_blank" class="btn-gradient-shimmer px-6 py-3 rounded-xl text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2">
+              <i class="fa-solid fa-play"></i>
+              <span>เปิดทดลองเล่น Customer App (Port 8081)</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 flex justify-center">
+          <div class="glass-card p-6 rounded-3xl border border-slate-700 max-w-md w-full text-center">
+            <img src="https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?q=80&w=800&auto=format&fit=crop" class="w-full h-64 object-cover rounded-2xl mb-4" alt="Customer App Preview">
+            <div class="font-bold text-white text-base">CleanHome Customer Experience</div>
+            <div class="text-xs text-slate-400 mt-1">สัมผัสประสบการณ์จองแม่บ้านที่ง่ายที่สุดบนระบบปฏิบัติการ iOS & Android</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tab Content: Cleaner Pro App Details (Hidden by default) -->
+      <div id="tabContentCleaner" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <div class="lg:col-span-6 space-y-6">
+          <div class="inline-flex items-center gap-2 text-cyanGlow text-sm font-bold bg-cyanGlow/10 px-3 py-1 rounded-lg">
+            <i class="fa-solid fa-shield-halved"></i> สำหรับแม่บ้านพาร์ทเนอร์ CleanHome Pro
+          </div>
+          <h3 class="text-3xl font-extrabold text-white">เรดาร์รับงานด่วนรอบตัว บัตรพนักงานดิจิทัล และถอนเงินทันที</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            แอปพลิเคชันที่สร้างขึ้นเพื่อสนับสนุนแม่บ้านยุคดิจิทัล แสดงงานใกล้ตัวในรัศมี 1-3 กม. พร้อมระบบบัตรพนักงานดิจิทัลที่มี QR Code สำหรับยื่นให้ รปภ. นิติบุคคลสแกนผ่านเข้าตึกได้ทันที
+          </p>
+
+          <div class="space-y-3 pt-2">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-cyanGlow/20 text-cyanGlow flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>เรดาร์งานพร้อมเสียงเตือน:</strong> รับงานได้ทันทีเมื่อมีลูกค้าเรียกในคอนโดใกล้เคียง
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-cyanGlow/20 text-cyanGlow flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>กระเป๋าเงิน E-Wallet & PromptPay:</strong> ทำงานเสร็จ ถอนเงินสดเข้าบัญชีได้ทุกวัน ไม่ต้องรอรอบสัปดาห์
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-cyanGlow/20 text-cyanGlow flex items-center justify-center text-xs mt-0.5">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <div class="text-xs sm:text-sm text-slate-300">
+                <strong>ระบบเลื่อนขั้น Gold Pro:</strong> รักษาคะแนน KPI 5 เสาหลัก เพื่อรับสิทธิ์เลือกรับงานก่อนและรับโบนัสพิเศษ
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex gap-4">
+            <a href="http://localhost:8082" target="_blank" class="bg-cyanGlow hover:bg-cyan-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition">
+              <i class="fa-solid fa-play"></i>
+              <span>เปิดทดลองเล่น Cleaner Pro App (Port 8082)</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 flex justify-center">
+          <div class="glass-card p-6 rounded-3xl border border-slate-700 max-w-md w-full text-center">
+            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=800&auto=format&fit=crop" class="w-full h-64 object-cover rounded-2xl mb-4" alt="Cleaner App Preview">
+            <div class="font-bold text-white text-base">CleanHome Pro Partner Platform</div>
+            <div class="text-xs text-slate-400 mt-1">เครื่องมือเสริมพลังสร้างรายได้ที่มั่นคงและโปร่งใสสำหรับแม่บ้านยุคใหม่</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== CLEANER CAREER RECRUITMENT ==================== -->
+  <section id="cleaner-career" class="py-20 relative z-10 bg-gradient-to-r from-emerald-950/40 via-slate-950 to-cyan-950/40 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="glass-card rounded-3xl p-8 sm:p-14 border border-brand-500/30 shadow-2xl relative overflow-hidden">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <div class="lg:col-span-8 space-y-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+              JOIN OUR PROFESSIONAL TEAM
+            </span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white">
+              ร่วมงานเป็นแม่บ้านพาร์ทเนอร์ CleanHome Pro <br>
+              <span class="text-brand-400">สร้างรายได้ ฿18,000 - ฿35,000 / เดือน</span>
+            </h2>
+            <p class="text-slate-300 text-sm max-w-2xl leading-relaxed">
+              อิสระในการเลือกเวลางานและสถานที่ใกล้บ้าน มีระบบประกันอุบัติเหตุคุ้มครอง ถอนเงินได้ทุกวันผ่าน PromptPay พร้อมอุปกรณ์และยูนิฟอร์มฟรี
+            </p>
+
+            <div class="flex flex-wrap gap-4 pt-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <i class="fa-solid fa-circle-check text-brand-400"></i> ถอนเงินสดได้ทุกวัน
+              </div>
+              <div class="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <i class="fa-solid fa-circle-check text-brand-400"></i> เลือกรับงานเฉพาะคอนโดที่สะดวก
+              </div>
+              <div class="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <i class="fa-solid fa-circle-check text-brand-400"></i> มีทีมซัพพอร์ตคอยดูแลตลอด 24 ชม.
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 text-center lg:text-right">
+            <button onclick="alert('กรุณาดาวน์โหลดแอป CleanHome Pro หรือติดต่อสมัครผ่าน LINE: @cleanhomepro')" class="btn-gradient-shimmer px-8 py-4 rounded-2xl text-slate-950 font-extrabold text-base w-full sm:w-auto shadow-2xl">
+              <i class="fa-brands fa-line text-lg mr-2"></i> สมัครผ่าน LINE รับงานทันที
+            </button>
+            <div class="text-[11px] text-slate-400 mt-2">ไม่มีค่าธรรมเนียมแรกเข้า • เริ่มงานได้หลังตรวจประวัติ 48 ชม.</div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== REAL CUSTOMER REVIEWS ==================== -->
+  <section class="py-24 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <span class="text-xs font-bold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+          RESIDENT TESTIMONIALS
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-extrabold font-display text-white mt-4 mb-4">
+          เสียงตอบรับจากลูกบ้านคอนโดชั้นนำ
+        </h2>
+        <p class="text-slate-400 text-sm sm:text-base">
+          ความไว้วางใจจากลูกบ้านคอนโดและเจ้าของบ้านกว่า 10,000 ครอบครัวทั่วกรุงเทพฯ
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Review 1 -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber-400 text-sm mb-3">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed italic mb-4">
+              "ประทับใจระบบบัตรพนักงาน QR Code มากครับ รปภ. คอนโดสแกนแล้วให้ขึ้นตึกได้ทันที ไม่ต้องลงมารับเอง แม่บ้านทำงานเนี้ยบ ห้องน้ำกับกระจกเงาวับเลย แนะนำครับ"
+            </p>
+          </div>
+          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+            <div class="w-10 h-10 rounded-full bg-slate-700 text-white font-bold flex items-center justify-center text-sm">
+              ภ
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">คุณภัทรเดช ส.</div>
+              <div class="text-[11px] text-slate-400">ลูกบ้าน Life Asoke-Rama 9</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="glass-card p-6 rounded-3xl border border-brand-500/30 flex flex-col justify-between relative shadow-lg shadow-brand-500/10">
+          <div>
+            <div class="flex items-center gap-1 text-amber-400 text-sm mb-3">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed italic mb-4">
+              "ชอบระบบ Escrow ที่สุดค่ะ เพราะเคยโดนเจ้าอื่นตัดเงินแล้วแม่บ้านเบี้ยว แต่ของ CleanHome เงินยังอยู่กับระบบจนกว่าเราจะกดยืนยัน ปลอดภัยและสบายใจมากค่ะ"
+            </p>
+          </div>
+          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+            <div class="w-10 h-10 rounded-full bg-brand-500 text-slate-950 font-bold flex items-center justify-center text-sm">
+              น
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">คุณนภัสสร ว.</div>
+              <div class="text-[11px] text-brand-400">ลูกบ้าน Ideo Mobi Sukhumvit 66</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-1 text-amber-400 text-sm mb-3">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+            </div>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed italic mb-4">
+              "ใช้บริการ Deep Clean ก่อนย้ายเข้าบ้านเดี่ยว ลาดพร้าว ช่างทำความสะอาดมาตรงเวลา อุปกรณ์ครบ มีพ่นฆ่าเชื้อให้ด้วย บ้านสะอาดไร้ฝุ่น คุ้มค่าเงินมากๆ"
+            </p>
+          </div>
+          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+            <div class="w-10 h-10 rounded-full bg-slate-700 text-white font-bold flex items-center justify-center text-sm">
+              ก
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white">คุณกานต์ พ.</div>
+              <div class="text-[11px] text-slate-400">บ้านเดี่ยว นาคนิวาส ลาดพร้าว</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 relative z-10 text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        
+        <!-- Brand Info -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-brand-500 text-slate-950 flex items-center justify-center font-bold text-lg">
+              <i class="fa-solid fa-sparkles"></i>
+            </div>
+            <span class="text-xl font-bold font-display text-white">CleanHome</span>
+          </div>
+          <p class="leading-relaxed">
+            บริษัท คลีนโฮม แพลตฟอร์ม จำกัด <br>
+            ผู้ให้บริการแพลตฟอร์มจัดหาแม่บ้านทำความสะอาดบ้านและคอนโดที่ได้มาตรฐานความปลอดภัยสูงสุดในไทย
+          </p>
+          <div class="flex gap-3 text-base text-slate-300">
+            <a href="#" class="w-8 h-8 rounded-full glass-card flex items-center justify-center hover:text-brand-400"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full glass-card flex items-center justify-center hover:text-brand-400"><i class="fa-brands fa-line"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full glass-card flex items-center justify-center hover:text-brand-400"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+
+        <!-- Services Links -->
+        <div>
+          <h4 class="font-bold text-white text-sm mb-4">บริการทั้งหมด</h4>
+          <ul class="space-y-2.5">
+            <li><a href="#calculator" class="hover:text-brand-400">ทำความสะอาดคอนโด Studio / 1BR</a></li>
+            <li><a href="#calculator" class="hover:text-brand-400">ทำความสะอาดคอนโด 2BR / Penthouse</a></li>
+            <li><a href="#calculator" class="hover:text-brand-400">ทำความสะอาดบ้านเดี่ยว & ทาวน์โฮม</a></li>
+            <li><a href="#calculator" class="hover:text-brand-400">Deep Cleaning ขัดคราบฝังลึก</a></li>
+            <li><a href="#calculator" class="hover:text-brand-400">บริการรีดผ้า & อบโอโซนฆ่าเชื้อ</a></li>
+          </ul>
+        </div>
+
+        <!-- Security & Legal -->
+        <div>
+          <h4 class="font-bold text-white text-sm mb-4">ความปลอดภัย & นโยบาย</h4>
+          <ul class="space-y-2.5">
+            <li><a href="#" class="hover:text-brand-400">การตรวจประวัติ สนง.ตำรวจแห่งชาติ</a></li>
+            <li><a href="#" class="hover:text-brand-400">การเข้ารหัสรหัสผ่านประตู AES-256</a></li>
+            <li><a href="#" class="hover:text-brand-400">ระบบหน่วงเงิน Escrow Guarantee</a></li>
+            <li><a href="#" class="hover:text-brand-400">นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</a></li>
+            <li><a href="#" class="hover:text-brand-400">ข้อกำหนดการประกันภัย ฿50,000</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact 24/7 -->
+        <div>
+          <h4 class="font-bold text-white text-sm mb-4">ศูนย์ช่วยเหลือฉุกเฉิน 24 ชม.</h4>
+          <p class="leading-relaxed mb-3">
+            ติดต่อสอบถามหรือแจ้งเหตุด่วนได้ตลอด 24 ชั่วโมง
+          </p>
+          <div class="space-y-2 font-bold text-white">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-phone text-brand-400"></i>
+              <span>02-999-8888</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-brands fa-line text-brand-400"></i>
+              <span>@cleanhome_care</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-envelope text-brand-400"></i>
+              <span>support@cleanhome.co.th</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-[11px] gap-4">
+        <div>© 2026 CleanHome Platform Co., Ltd. สงวนลิขสิทธิ์ทุกประการ</div>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-slate-200">ข้อกำหนดการใช้งาน</a>
+          <a href="#" class="hover:text-slate-200">นโยบายความเป็นส่วนตัว</a>
+          <a href="#" class="hover:text-slate-200">ความปลอดภัยของข้อมูล</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==================== BOOKING MODAL (POPUP) ==================== -->
+  <div id="bookingModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-brand-500/40 shadow-2xl relative">
+      
+      <button onclick="closeBookingModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-lg">จองบริการทำความสะอาด</h3>
+          <p class="text-xs text-slate-400">ระบบจะจับคู่แม่บ้านที่ผ่านการตรวจประวัติ สตช. ทันที</p>
+        </div>
+      </div>
+
+      <form onsubmit="handleBookingSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-bold mb-1.5">ชื่อ-นามสกุล ของคุณ</label>
+          <input type="text" required placeholder="เช่น คุณธนพล สมบูรณ์ทรัพย์" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-bold mb-1.5">เบอร์โทรศัพท์มือถือ</label>
+          <input type="tel" required placeholder="08x-xxx-xxxx" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-bold mb-1.5">ชื่อคอนโด หรือสถานที่ของคุณ</label>
+          <input type="text" required placeholder="เช่น Life Asoke-Rama 9 ห้อง 19/402" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1.5">วันที่ต้องการรับบริการ</label>
+            <input type="date" required class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1.5">เวลาที่ต้องการ</label>
+            <select class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-500">
+              <option>09:00 - 12:00 น.</option>
+              <option>13:00 - 16:00 น.</option>
+              <option>17:00 - 20:00 น.</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-emerald-950/40 border border-brand-500/30 text-[11px] text-slate-300">
+          <i class="fa-solid fa-shield-check text-brand-400 mr-1.5"></i>
+          ชำระเงินผ่าน PromptPay หรือบัตรเครดิต โดยเงินจะพักในระบบ Escrow ปลอดภัย 100%
+        </div>
+
+        <button type="submit" class="w-full btn-gradient-shimmer py-3.5 rounded-xl text-slate-950 font-bold text-sm shadow-xl mt-2">
+          ยืนยันการจอง & ส่งสัญญาณเข้าเรดาร์แม่บ้าน
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==================== INTERACTIVE JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // --- 1. Interactive Before & After Slider Logic ---
+    const baContainer = document.getElementById('baContainer');
+    const baResize = document.getElementById('baResize');
+    const baHandle = document.getElementById('baHandle');
+    let isDragging = false;
+
+    function setSliderPosition(x) {
+      const rect = baContainer.getBoundingClientRect();
+      let pos = (x - rect.left) / rect.width;
+      if (pos < 0.05) pos = 0.05;
+      if (pos > 0.95) pos = 0.95;
+      const percentage = pos * 100;
+      baResize.style.width = percentage + '%';
+      baHandle.style.left = percentage + '%';
+    }
+
+    baContainer.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      setSliderPosition(e.clientX);
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      setSliderPosition(e.clientX);
+    });
+
+    // Touch Support for Mobile
+    baContainer.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      setSliderPosition(e.touches[0].clientX);
+    });
+    window.addEventListener('touchend', () => { isDragging = false; });
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      setSliderPosition(e.touches[0].clientX);
+    });
+
+    // --- 2. Interactive Pricing Calculator Logic ---
+    let currentBasePrice = 550;
+    let currentDuration = 120;
+    let currentTitle = "คอนโด Studio / 1BR (ไม่เกิน 35 ตร.ม.)";
+
+    function selectService(type, price, duration, title) {
+      currentBasePrice = price;
+      currentDuration = duration;
+      currentTitle = title;
+
+      // Update button active state
+      const buttons = document.querySelectorAll('.service-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('active', 'border-brand-500');
+        btn.classList.add('border-slate-700');
+      });
+      event.currentTarget.classList.add('active', 'border-brand-500');
+      event.currentTarget.classList.remove('border-slate-700');
+
+      calculateTotal();
+    }
+
+    function calculateTotal() {
+      let addonTotal = 0;
+      if (document.getElementById('addonIron').checked) addonTotal += 150;
+      if (document.getElementById('addonOzone').checked) addonTotal += 300;
+      if (document.getElementById('addonBalcony').checked) addonTotal += 200;
+
+      const grandTotal = currentBasePrice + addonTotal;
+
+      document.getElementById('summaryTitle').innerText = currentTitle;
+      document.getElementById('summaryBasePrice').innerText = '฿' + currentBasePrice;
+      document.getElementById('summaryAddonPrice').innerText = '฿' + addonTotal;
+      document.getElementById('summaryDuration').innerText = '~' + currentDuration + ' นาที';
+      document.getElementById('grandTotal').innerText = '฿' + grandTotal.toLocaleString();
+    }
+
+    // --- 3. App Tabs Switcher Logic ---
+    function switchAppTab(tab) {
+      const btnCustomer = document.getElementById('btnTabCustomer');
+      const btnCleaner = document.getElementById('btnTabCleaner');
+      const contentCustomer = document.getElementById('tabContentCustomer');
+      const contentCleaner = document.getElementById('tabContentCleaner');
+
+      if (tab === 'customer') {
+        btnCustomer.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20 transition-all flex items-center gap-2";
+        btnCleaner.className = "px-6 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition-all flex items-center gap-2";
+        contentCustomer.classList.remove('hidden');
+        contentCleaner.classList.add('hidden');
+      } else {
+        btnCleaner.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-cyanGlow text-slate-950 shadow-lg shadow-cyanGlow/20 transition-all flex items-center gap-2";
+        btnCustomer.className = "px-6 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-white transition-all flex items-center gap-2";
+        contentCleaner.classList.remove('hidden');
+        contentCustomer.classList.add('hidden');
+      }
+    }
+
+    // --- 4. Modal Booking Logic ---
+    function openBookingModal() {
+      const modal = document.getElementById('bookingModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBookingModal() {
+      const modal = document.getElementById('bookingModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleBookingSubmit(e) {
+      e.preventDefault();
+      alert('🎉 ส่งคำสั่งจองเข้าสู่ระบบ Escrow สำเร็จแล้ว! กำลังจับคู่แม่บ้านที่ใกล้คุณที่สุด และส่งการแจ้งเตือนไปยังเบอร์ของคุณ');
+      closeBookingModal();
+    }
+  </script>
+
 </body>
-
 </html>
